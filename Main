@@ -1,0 +1,215 @@
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.JFrame;
+import javax.swing.JList;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+
+/**
+ *
+ * @author Root
+ */
+
+class Ramka extends JFrame{
+    private List <String> pomoc = new ArrayList <String> ();
+    private List <Piosenka> pos = new ArrayList<Piosenka>();  
+    private JList lista;
+    private String[] piosenki;
+    private ButtonGroup pole;
+    private JRadioButton tytul;
+    private JRadioButton wykonawca;
+    private JRadioButton album;
+    private JRadioButton rok;
+    private int licznik = 0;
+    public Ramka(){
+        Plik p = new Plik();
+        setSize(500,700);
+        setTitle("Kolekcja piosenek");        
+        lista = new JList(piosenki);
+        setLayout(new BoxLayout(getContentPane(),BoxLayout.Y_AXIS));
+        JScrollPane pane = new JScrollPane(lista);
+        add(pane);
+        pole = new ButtonGroup();
+        tytul = new JRadioButton("Tytuł",false);
+        tytul.setPreferredSize(new Dimension(100,30));
+        wykonawca = new JRadioButton("Wykonawca",true);
+        wykonawca.setPreferredSize(new Dimension(100,30));
+        album = new JRadioButton("Album",false);
+        album.setPreferredSize(new Dimension(100,30));
+        rok = new JRadioButton("Rok",false);
+        rok.setPreferredSize(new Dimension(100,30));
+        pole.add(album);
+        pole.add(tytul);
+        pole.add(wykonawca);
+        pole.add(rok);
+        add(album);
+        add(tytul);
+        add(wykonawca);
+        add(rok);
+        album.addActionListener(new Sort());
+        tytul.addActionListener(new Sort());
+        wykonawca.addActionListener(new Sort());
+        rok.addActionListener(new Sort());
+    }
+    class Plik{
+        private String linia="";       
+        public Plik(){
+            try{
+                FileReader file = new FileReader("Piosenki.txt");
+                BufferedReader bufor = new BufferedReader(file);
+                while((linia = bufor.readLine())!= null){
+                    pomoc.add(linia);
+                    String [] tmp = linia.split("-");
+                    Piosenka lol = new Piosenka(tmp[0],tmp[1],tmp[2],tmp[3]);
+                    pos.add(lol);
+                    licznik++;
+                }
+                piosenki = new String [licznik];
+                Iterator i = pomoc.iterator();
+                int licz = 0;
+                while(i.hasNext()){
+                    piosenki[licz] = (String) i.next();
+                    licz ++;
+                }
+                bufor.close();
+                file.close();
+            }
+            catch(FileNotFoundException e){
+                e.printStackTrace();
+            }
+            catch(IOException e){
+                e.printStackTrace();
+            }
+        }
+    }
+    class Sort implements ActionListener{
+        @Override
+        public void actionPerformed(ActionEvent e){
+            if(album.isSelected()){
+                Collections.sort(pos);               
+                //repaint(); // Uaktualnia widok
+            }
+            if(tytul.isSelected()){
+                Collections.sort(pos);                
+                //repaint(); // Uaktualnia widok
+            }
+            if(wykonawca.isSelected()){
+                Collections.sort(pos);                
+                //repaint(); // Uaktualnia widok
+            }
+            if(rok.isSelected()){
+                Collections.sort(pos);                
+                //repaint(); // Uaktualnia widok
+            }
+            Iterator i = pos.iterator();
+            int licz = 0;
+            while(i.hasNext()){
+                piosenki[licz] = (String) i.next().toString();
+                licz ++;
+            }
+            repaint();
+        }
+    }
+    class Piosenka implements Comparable<Piosenka>{
+        private String tytulString;
+        private String wykonawcaString;
+        private String albumString;
+        private String rokInt;
+
+        public String getTytulString() {
+            return tytulString;
+        }
+
+        public String getWykonawcaString() {
+            return wykonawcaString;
+        }
+
+        public String getAlbumString() {
+            return albumString;
+        }
+
+        public String getRokInt() {
+            return rokInt;
+        }
+
+        public void setTytulString(String tytulString) {
+            this.tytulString = tytulString;
+        }
+
+        public void setWykonawcaString(String wykonawcaString) {
+            this.wykonawcaString = wykonawcaString;
+        }
+
+        public void setAlbumString(String albumString) {
+            this.albumString = albumString;
+        }
+
+        public void setRokInt(String rokInt) {
+            this.rokInt = rokInt;
+        }        
+        public Piosenka(String tytulString,String wykonawcaString,String albumString,String rokInt){
+            this.albumString = albumString;
+            this.rokInt = rokInt;
+            this.tytulString = tytulString;
+            this.wykonawcaString = wykonawcaString;
+        }
+        @Override
+        public int compareTo(Piosenka p){
+            if(album.isSelected()){
+                return albumString.compareTo(p.getAlbumString());
+            }
+            if(tytul.isSelected()){
+                return tytulString.compareTo(p.getTytulString());
+            }
+            if(rok.isSelected()){
+                return rokInt.compareTo(p.getRokInt());
+            }
+            return wykonawcaString.compareTo(p.getWykonawcaString());
+        }
+        @Override
+        public String toString(){
+            return tytulString + " - " + wykonawcaString + " - " + albumString + " - " + rokInt;
+        }
+    }
+}
+
+public class Sortowanie {
+
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String[] args) {  
+        try{
+            UIManager.setLookAndFeel("com.jtattoo.plaf.texture.TextureLookAndFeel");
+        }
+        catch (UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+        }
+        catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        catch (InstantiationException e) {
+            e.printStackTrace();
+        }
+        catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        Ramka r = new Ramka();
+        r.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        r.setVisible(true);
+    }
+    
+}
